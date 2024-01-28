@@ -46,13 +46,26 @@ public class JwtFilter extends OncePerRequestFilter {
         //this.userDetailsService = userDetailsService;
     }
 
+    public static boolean matchPattern(String url, String pattern) {
+        if (pattern.endsWith("/**")) {
+            String prefix = pattern.substring(0, pattern.length() - 3);
+            return url.startsWith(prefix);
+        } else {
+            return url.equals(pattern);
+        }
+    }
     @Override
     protected void doFilterInternal(
             HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        if (request.getServletPath().contains("/api/v1/auth")) {
-            filterChain.doFilter(request, response);
-            return;
+        String requestedUri = request.getServletPath();
+        log.info("filtering requested URI: {}",requestedUri);
+        //if(request.getServletPath().contains("/api/v1/auth"))
+        for(String whiteListUri: CommonConstant.WHITE_LIST_URL){
+            if(matchPattern(requestedUri,whiteListUri)){
+                filterChain.doFilter(request, response);
+                return;
+            }
         }
         String header = request.getHeader(HEADER_STRING);
         String username = null;
