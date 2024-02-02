@@ -95,7 +95,7 @@ public class JwtFilter extends OncePerRequestFilter {
                             .collect(Collectors.toList());
 
             UserDetails userDetails = new User(username, "", authorities);
-            if (jwtTokenUtil.isValidSignature(authToken, SIGNING_KEY)) {
+            if (jwtTokenUtil.isValidSignature(authToken, SIGNING_KEY) && !jwtTokenUtil.isTokenExpired(authToken)) {
                 UsernamePasswordAuthenticationToken authentication = jwtTokenUtil.getAuthenticationToken(authToken, SecurityContextHolder.getContext().getAuthentication(), userDetails);
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 log.info("authenticated user " + username + ", setting security context");
